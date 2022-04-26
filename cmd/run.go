@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -20,17 +21,17 @@ var runCmd = &cobra.Command{
 	Short: "run user command with confirmation",
 	//DisableFlagParsing: true,
 	Aliases: []string{"r"},
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		if isNeedConfirm(args) {
-			fmt.Printf("%sConfirm???", notice())
+			fmt.Printf("%sConfirm??? y or n", notice())
 			buf := bufio.NewReader(os.Stdin)
 			b, err := buf.ReadBytes('\n')
 			if err != nil {
-				return err
+				return
 			}
 			if strings.ToLower(strings.Trim(string(b), "\n")) != "y" {
 				fmt.Println("exit...")
-				return nil
+				return
 			}
 		}
 
@@ -38,7 +39,8 @@ var runCmd = &cobra.Command{
 		kCmd.Stdout = os.Stdout
 		kCmd.Stderr = os.Stderr
 		kCmd.Stdin = os.Stdin
-		return kCmd.Run()
+		_ = kCmd.Run()
+		return
 	},
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		newArgs := []string{"__complete"}
@@ -46,11 +48,28 @@ var runCmd = &cobra.Command{
 		newArgs = append(newArgs, toComplete)
 		kCmd := exec.Command(baseCmd, newArgs...)
 		outBytes, _ := kCmd.CombinedOutput()
+
 		validArgs := strings.Split(string(outBytes), "\n")
+
+		// check directive
+		compDirective := cobra.ShellCompDirectiveDefault
+		if len(validArgs) >= 2 {
+			r, _ := regexp.Compile("Shell\\w+")
+			if comp, ok := map[string]cobra.ShellCompDirective{
+				"ShellCompDirectiveError":         cobra.ShellCompDirectiveError,
+				"ShellCompDirectiveNoSpace":       cobra.ShellCompDirectiveNoSpace,
+				"ShellCompDirectiveNoFileComp":    cobra.ShellCompDirectiveNoFileComp,
+				"ShellCompDirectiveFilterFileExt": cobra.ShellCompDirectiveFilterFileExt,
+				"ShellCompDirectiveFilterDirs":    cobra.ShellCompDirectiveFilterDirs,
+			}[r.FindString(validArgs[len(validArgs)-2])]; ok {
+				compDirective = comp
+			}
+		}
+
 		if len(validArgs) >= 3 {
 			validArgs = validArgs[:len(validArgs)-3]
 		}
-		return validArgs, cobra.ShellCompDirectiveNoFileComp
+		return validArgs, compDirective
 	},
 }
 
