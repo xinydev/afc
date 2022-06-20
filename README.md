@@ -21,6 +21,9 @@ it also supports native shell completion
 
 ```shell
 go install github.com/xinydev/afc@latest
+
+# completion for zsh. run `afc completion --help` for other shells
+afc completion zsh > "${fpath[1]}/_afc"
 ```
 
 ## Usage
