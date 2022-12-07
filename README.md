@@ -1,19 +1,13 @@
 # Ask for Confirmation
 
-When performing sensitive operations(kubectl delete,kubectl apply,rm -rf),
-conduct secondary confirmation to the user to prevent operation errors
+Conduct secondary confirmation to the user when executing sensitive operations (such as kubectl remove, kubectl apply, and rm -rf) to avoid operation problems.
 
-When interacting with multiple kubernetes at the same time,
-it is easy to get confused.   
-For example, if you forget to switch clusters before apply or delete,
-unexpected losses may be caused
+It is simple to become lost while interacting with several Kubernetes at once.
+Unexpected losses may result, for instance, if you fail to switch clusters before applying or deleting.
 
-AFC will prompt a message to prompt the current environment
-before performing sensitive operations (apply, delete),  
-and ask the user to enter y before perform real operations. Reduce the possibility of operational errors
+Before executing sensitive operations (apply, delete), AFC will display a notice asking the user to confirm before doing the actual operations. minimize the likelihood of operational errors
 
-Using AFC is very convenient and supports all commands. If the CLI is developed by cobra,
-it also supports native shell completion
+AFC is very practical and works with all instructions. If the CLI was created by Cobra, native shell completion is also supported.
 
 [中文说明](README-CN.md)
 
@@ -105,7 +99,7 @@ exit...
 
 ## shell completion
 
-If you want to use the shell completion of the kubectl(helm...),you need set the afc shell completion first
+You must first set the afc shell completion if you wish to use the kubectl(helm...) shell completion.
 
 ```shell
 afc completion --help
